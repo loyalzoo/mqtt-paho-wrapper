@@ -4,12 +4,14 @@ if (Loyalzoo === undefined) {
   Loyalzoo = {};
 }
 
-Loyalzoo.MQTTKeepAlive = function (brokerAddress, brokerPort, clientId) {
+Loyalzoo.MQTTKeepAlive = function (brokerAddress, brokerPort, clientId, customConnectionParams) {
 
   var scope = this;
 
   Loyalzoo.MQTTKeepAlive.prototype._init = function () {
+    if (customConnectionParams === undefined) {customConnectionParams={}};
     if (clientId === undefined) {clientId = scope.generateClientId(); }
+    scope._customConnectionParams = customConnectionParams;
     scope._clientId = clientId;
     scope._pingTopic = '/ping/' + scope._clientId;
     scope._brokerAddress = brokerAddress;
@@ -63,7 +65,9 @@ Loyalzoo.MQTTKeepAlive = function (brokerAddress, brokerPort, clientId) {
 
   Loyalzoo.MQTTKeepAlive.prototype.connect = function () {
     console.log('log: connect');
-    scope._client.connect({onSuccess: scope._onConnect});
+    params = scope._customConnectionParams;
+    params['onSuccess'] = scope._onConnect;
+    scope._client.connect(params);
   };
 
   Loyalzoo.MQTTKeepAlive.prototype._onConnect = function () {
